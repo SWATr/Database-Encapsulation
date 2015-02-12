@@ -1,0 +1,42 @@
+MSE Database Encapsulation 
+Nate Zimmerman and Jon Colabella
+2/11/2015
+
+
+I. Project Summary:
+
+	Third party products create a dependency on your developed and deployed programs. If the provider decides to change their interface or implementation, it may affect how your program
+	behaves and drive other unwanted impacts to your product. These risks can be mitigated by following good object oriented practices such as encapsulation. The task is to research and 
+	explore methods of database storage and retrieval that remove the dependence from FOSS, COTS, and GOTS. Examples of this could include, object relational mapping (ORM) frameworks that
+	auto-generate class objects based on schema definitions and data models. The class objects are used to store, retrieve, and convert data to and from the 	database into a specific programming
+	language. Another approach could be to create database 	functions (stored procedures) that implement the SQL calls.
+	
+	After researching different approaches and determining  their impacts to existing legacy code, a 	list of pros and cons will be compiled to best choose three methods to focus on. Once these
+	three methods have been determined, using the Agile software development process, three prototypes will be created to showcase the researched pros and cons. The additional methods 	
+	will not be prototyped, instead they will be surveyed as to why they are not as effective. Topics to evaluate will include ease of implementation, continuous maintenance, performance 
+	concerns, existing database support, ability to swap database engines, etc.
+
+
+II. Project goals
+Extensive research done on encapsulation methods and APIs
+Three functional prototypes to demonstrate pros and cons of encapsulation methods
+White paper with detailed metrics on each methods pros and cons and how they compare to one another (ie. Ease of implementation, performance, ect.)
+Allow for seamless user interaction, we don't want the user to know which database they are using, the user may see a difference in performance but they won't know anything else 
+Learn how to effectively use the Agile software development process instead of the waterfall software development process
+White paper on non prototyped methods listing why they are not as effective
+Using GitHub to ensure communication between software development team and customer to effectively meet project requirements and deadlines
+
+
+III. Product Deliverables
+As a programmer I want to be able to swap databases without having to worry about database changes so that I don't to have to make multiple code changes to access it
+As a programmer I want to be able to produce a set of prototypes that show the different metrics of  each method of encapsulation
+As a programmer I want to be to produce a white paper that shows the pros and cons of each method and compare them side by side 
+
+
+IV. Constraints 
+Prototypes need to be platform independent 
+Prototypes need to be coded in Java or C++
+Must operate in a Linux based OS
+All artifacts must be on GitHub
+
+
