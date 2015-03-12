@@ -1,0 +1,379 @@
+MSE Database Encapsulation 
+Design Document
+
+JDBC
+
+1. Learning Curve
+•With JDBC + MySQL, you will get full control of everything that you need with less dependency on any frameworks.
+•The JDBC API is a low-level, generic SQL API that will provide the flexibility needed for developing Java applications connecting to different DBMS engines, enterprise—wide or across the Internet. This interface provides application developers with a SQL-compliant interface much like the Microsoft API, so no additional learning curve is necessary for database development in Java.
+
+2. Performance 
+•Good performance with large amounts of data.
+•Different drivers offer different strengths and weaknesses. An example comparison Bennett type-4 and type-5 drivers: https://www.progress.com/products/datadirect-connect/jdbc-drivers/features/type-5-jdbc/compare
+•Better vs Hibernate Testing Sample: http://phpdao.com/hibernate_vs_jdbc/
+
+3. Limitations
+•Each driver has its own strengths and weaknesses with performance and compatibility.
+
+• When you start using JDBC in your server applications, you may encounter situations when you do not get the results you desire or expect. You may think the problem lies in JDBC or in the NAS implementation of the JDBC driver. In fact, the vast majority of the time, the problems actually lie in the limitations of your database engine.
+
+•Because JDBC covers the broadest possible spectrum of database support, it enables you to attempt operations not every database supports. For example, most database vendors support most of the SQL-2 language, but no vendor provides fully unqualified support for all of the SQL-2 standard. Most vendors built SQL-2 support on top of their already existing proprietary relational database management systems, and either those proprietary systems offer features not in SQL-2, or SQL-2 offers features not available in those systems. Most vendors, too, have added non-standard SQL-2 extensions to their implementations of SQL in order to support their proprietary features. JDBC provides ways for you to access vendor-specific features, but it's important to realize that these features may not be available for all the databases you use. This is especially true when you build an application that uses databases from two or more different vendors.
+
+•As a result, not all vendors fully support all aspects of every available JDBC class, method, and method arguments. More importantly, a set of SQL statements embedded as an argument in a JDBC method call may or may not be supported by the database or databases your server application uses. In order to make maximum use of JDBC, you must consult your database vendors' documentation about which aspects of SQL and JDBC they support. Before you call NAS technical support for a database problem, make sure you first eliminate the possibility that your database is the cause of the problem. 
+
+4. Ease of Implementation
+•In JDBC you first register a driver by calling: Class.forName('classname') which loads the Database class and registers that class with DriverManager
+•When you say DriverManager.getConnection() - It returns you java.sql.Connection (the contract as per specification)
+•Which class implements these methods?
+The actual implementation is provided by the database vendor, for e.g. Oracle, MySQL.
+•Why it is called as connection object instead of implemented class object?
+Because you code to Interface and not implementation (good coding practice).
+•If you want you can look up in the vendor jar and find which class implements Connection then instead of
+Connection connection = DriverManager.getConnection you can write:
+VendorConnectionImpl vendorConnection = (VendorConnectionImpl)DriverManager.getConnection()
+This above will work but then it will bind you with that specific implementation.
+•If you want to move from vendor1 to vendor2 you cannot do that, first you will have to change the above code as per vendor2 API, But if you use the first approach you can move from Vendor to Vendor without having pain of changing your code.
+
+5. Ease of Database Swapping
+•Tutorial - http://docs.oracle.com/javase/tutorial/jdbc/basics/gettingstarted.html
+•The JDBC specification/javadoc also explicitly says that people should use the API over database specific commands (if both are available). There are several reasons for this: 1) it promotes database-independent code, and 2) the driver might do additional things internally in response to one of the API methods. Using database specific commands might cause the driver to misbehave because its internal state does not match the database state.
+
+6. Useful Links
+http://www.oracle.com/technetwork/java/overview-141217.html
+
+http://stackoverflow.com/questions/13433326/java-how-to-change-current-database-to-another
+
+http://javarevisited.blogspot.com/2012/01/improve-performance-java-database.html 
+
+ORM
+
+7. Learning Curve
+•The problems of ORM are detailed here in a summary by Martin Fowler (http://martinfowler.com/bliki/OrmHate.html) on why ORM is hard:
+
+•Object identity vs database identity
+•How to map object oriented inheritance in the relational world
+•Unidirectional associations in the database vs bi-directional in the OO world
+•Data navigation - lazy loading, eager fetching
+•Database transactions vs no rollbacks in the OO world 
+
+8. Performance 
+Using an ORM save a lot of time because :
+•DRY : You write your data model in only one place, it's easier to update, maintain and reuse the code.
+•A lot of stuff is done automatically, from the database handling to I18N.
+•It forces you to write MVC code, and in the end your app is cleaner.
+•You don't have to write poorly formed SQL (most Web programmers really suck at it, because SQL is treated like a "sub" language whereas it's a very powerful and complex one)
+•Sanitizing, using prepared statements or transactions are as easy as calling a method.
+
+Using an ORM is more flexible because :
+•It fits in your natural way of coding (it's your language !)
+•It abstracts the DB system, so you can change it whenever you want.
+•The model is weakly bound to the rest of the app, so you can change it or use it anywhere else.
+•It let you use OOP goodness like data inheritance without head ache.
+
+But ORM can be a pain :
+•You have to learn it, and they are not lightweight tools;
+•You have to set it up. Same problem.
+•Performances are ok for usual queries, but a SQL master will always do better with his little hands for the big dirty works.
+•It abstracts the DB. While it's ok if you know what's happening behind the scene, it's a trap for the noobs that can write very greedy statements, like a heavy hit in a for loop. 
+
+9. Limitations
+•ORM frameworks tend to give cryptic error messages, the mapping is hard to do and the runtime behavior namely with lazy initialization exceptions can be surprising when first encountered.
+
+•Never let the ORM create or update the schema. Always use its generated SQL as a template but go through it before making the change (I have seen our ORM make redundant indexes, use bad data types...all that bad stuff)
+
+•Be aware of what your ORM cannot do. Django for a while did not support group by through the ORM which was a pain (still is, legacy systems fun!). So being aware of the ORM's limitations is a must for the DBA even if they are not the one writing the code for the ORM.
+
+•Periodically, grab your slow logs, aggregate them through mysqlslowlog, and look at the top 10 or so. Basically it will show you the queries that took the most aggregate time overall. A query that only took on average 1 sec but ran 50K times in the past month would stick out on that aggregate report like a sore thumb.
+
+10. Ease of Implementation
+•ORMs are a blessing and a curse. The blessing part is that early in development, when your schema (and product) are in flux, it is a much faster way to deal with object persistence than having to write SQL queries by hand for even the most mundane of tasks. The curse is that at some point, you will find yourself fighting with the ORM and will have to write a decent number of SQL queries by hand anyway.
+
+•So the answer is, begrudgingly, yes, but try to architect your code such that any operations other than simple attribute setting/getting on your persistent objects are abstracted in such a way that you can replace ORM-specific calls with direct SQL queries (some ORM packages offer better built-in support for this kind of abstraction than others). Also, if the thought enters your head "I know how to do X efficiently in SQL, but how do I do it using the ORM?", don't be afraid to just write X in SQL. 
+
+11. Ease of Database Swapping
+•ORM solutions do not work with Object Oriented databases, as OO databases remove the need for the ORM solution.
+
+•In general, an ORM is used to help abstract the relational model, and abstract away from the logic of the code the mismatch of the relational model to the object-oriented system. It also allows for usage of traditional databases that are often required for legacy systems to continue working, but gives you the freedom to handle the relationships in a OO fashion.
+
+•The abstraction is the real benefit, imo, of using an ORM. Swapping database vendors is not as easy as some would make it out to be, especially is you are switching from or to a database like Oracle, where there are lots of custom operations and custom behavior in the JDBC drivers.
+
+•Another element to your question is that it is unlikely that you would want to use the same baseline database model from a relational database to an object-oriented database. I would think that such a paradigm shift would recommend, if not require, a rethinking of the logic and connection behavior of the underlying core system. 
+
+12. Useful Links
+
+http://www.quora.com/Is-it-worth-implementing-an-ORM-layer-if-database-independence-is-not-a-requirement 
+
+JPA
+
+13. Learning Curve
+•JPA represents the lowest common denominator between the various ORMs that support it. It hasn't really unified anything and it hasn't really fixed anything. In fact, a good case can be made that standardization wasn't even necessary. Native queries are really awkward to use, returning Object arrays with multiple selects. This is, in part, Java's fault compared to, say, C#, which neatly gets around this with the "var" type (which is really just syntactic sugar for reflection on properties);
+
+•JPA can be a real black box for generating SQL;
+Composite keys are really awkward to use. So much so that composite primary keys are often described as "legacy" in JPA texts, blogs and articles;
+Entities, despite the claims of being POJOs, really aren't. They're typically unsuitable for transmission over a network, conversion to JSON and so on, typically requiring a translation layer;
+
+•No standard support for filtering collections. For example, a Customer entity may have several child Accounts, only 1-2 of which are active (marked with a flag). JPA doesn't really support just joining across the "active" children in this scenario; andJPA QL is another language you have to learn with little to no tooling support. It's not as capable as SQL is either (hence the need for native queries). 
+
+14. Performance 
+•With JPA O/R mapping you can use the @Embedded annotation for denormalized columns to specify a persistent field whose @Embeddable type can be stored as an intrinsic part of the owning entity and share the identity of the entity.
+
+•Optimization Tools- http://java-persistence-performance.blogspot.com/2011/06/how-to-improve-jpa-performance-by-1825.html
+
+•Additional Optimization Tools- http://java.dzone.com/articles/jpa-performance-optimization 
+
+15. Limitations
+•Your chances of not using any provider-specific extensions on any real project is almost zero. A great thing about JPA is that abstracts your interaction with the underlying database. A bad thing about JPA is that abstracts your interaction with the underlying database.
+
+•You can write database access code very easily and get most of the general database operations out of the box without having to write all that tedious JDBC code. On the other hand, you also need to have some knowledge of what’s going on behind the scenes or you’ll be in for some unpleasant surprises.
+
+•Believe it or not, I met a few developers that had no idea that JPA uses a database underneath. I feel that the majority of the developers are only concerned about getting the data they need, and don’t worry about anything else.
+
+•And this is why I decided to write this article: I’ve seen the same mistakes repeated over and over again, and they actually have a huge performance impact.
+
+•I’ve written down four areas in which I usually find all the issues: these are the ones I check first when I have to hunt down JPA performance problems.
+
+16. Ease of Implementation
+•See adjacent cell on Hibernate information for more information as well
+
+•JPA is just an API (hence Java Persistence API) that requires an implementation to use.
+
+•An analogy would be using JDBC. JDBC is an API for accessing databases, but you need an implementation (a driver jar file) to be able to connect to a database. On its own, without a driver, you cannot do anything with a database.
+
+•With JPA, as I said, you need an implementation, a set of classes that lie "below" JPA, and such an implementation will do what you want.
+
+•Your application uses the JPA API (this wording is a bit cumbersome, but I hope you get the idea), which then communicates with the underlying implementation.
+
+•Popular implementations include Hibernate, EclipseLink, OpenJPA and others.
+
+•Every one of them implement the JPA API, so if you use only JPA, every implementation should act the same.
+
+•But! The functionality provided by these implementations might go beyond the standard JPA API.
+
+•If you want to use this particular functionality, you will have to use vendor specific API that will not be compatible with others.
+
+•For example, even though JPA defines the @Id annotation with ID generation options, when using Hibernate, you can use also @org.hibernate.annotations.GenericGenerator for Hibernate specific generation strategies.
+
+•Using this annotation will not work unless you're using Hibernate as the underlying implementation.
+
+•The bottom line is: JPA is the "least common denominator" which every vendor implements, and every implementation might have some more advanced features that aren't standard.
+
+•If you want your application to be portable, use only JPA. If you are sure you won't change your mind later on and switch implementations, use JPA + vendor specific features. 
+
+17. Ease of Database Swapping
+•In JPA a database connection is represented by the EntityManager interface. Therefore, in order to manipulate an ObjectDB database we need an EntityManager instance. Operations that modify database content also require an EntityTransaction instance.
+
+•Obtaining an EntityManager instance consists of two steps. First we need to obtain an instance of EntityManagerFactory that represents the relevant database and then we can use that factory instance to get an EntityManager instance.
+
+•JPA requires the definition of a persistence unit in an XML file in order to be able to generate an EntityManagerFactory. But when using ObjectDB you can either define a standard persistence unit in an XML file or you can simply provide the file path of the ObjectDB database instead:
+EntityManagerFactory emf = Persistence.createEntityManagerFactory("$objectdb/db/points.odb");
+The createEntityManagerFactory static method expects a persistence unit name as an argument, but when using ObjectDB, any valid database file path (absolute or relative) is also accepted. Any string that ends with .odb or .objectdb is considered by ObjectDB to be a database url rather than a persistence unit name.
+
+•The $objectdb special prefix represents the ObjectDB home directory (by default - the directory in which ObjectDB is installed). If no database file exists yet at the given path ObjectDB will try to create one.
+
+•The EntityManagerFactory is also used to close the database once we are finished using it: emf.close();
+Obtaining an EntityManager
+Once we have an EntityManagerFactory we can easily obtain an EntityManager instance:EntityManager em = emf.createEntityManager();
+The EntityManager instance represents a connection to the database. When using JPA, every operation on a database is associated with an EntityManager. Further, in a multithreaded application every thread usually has its own EntityManager instance while at the same time sharing a single application-wide EntityManagerFactory.
+
+•When the connection to the database is no longer needed the EntityManager can be closed:em.close();
+Closing an EntityManager does not close the database itself (that is the job of the factory as previously explained). 
+
+•Once the EntityManager object is closed it cannot be reused. But, the owning EntityManagerFactory instance may preserve the EntityManager's resources (such as a database file pointer or a socket to a remote server) in a connection pool and use them to speed up future EntityManager construction.
+
+18. Useful Links
+http://stackoverflow.com/questions/4477082/what-is-a-jpa-implementation 
+
+
+
+
+
+Hibernate
+
+19. Learning Curve
+•Knowledge of ORM concepts, mappings and relations are welcome, understanding of how the Session works, understanding of more advanced concepts like lazy-loading, fetching strategies, caching (first-level cache, second-level cache, query cache), ect. Learning curive of is considered to be the largest weakness.
+
+20. Performance 
+•With "many" queries, you are meeting with the typical 1+N problem. You load an Entity with Hibernate which has related objects. With LAZY joins you'll get a single query for every record. Each query goes through the network to your database server and it returns the data. This all takes time (opening connection, network latency, lookup, data throughput, etc). For a single query (with joins) the lookup and data throughput are larger than with multiple queries. But you'll only have the opening of the connection and network latency just once. So with 100 or more queries you have a small lookup and data throughput, but you will have it 100 times (including opening the connection and network latency).
+
+•A single query that takes 20ms. vs 100 queries that takes 1ms.? You do the math ;) And if it can grow to be 1000's of records. The single query will have a small performance impact, but 1000's of queries vs 100's are a multiply of 10. So with multiple queries you'll have reduced the performance greatly.
+
+•When using HQL queries to retrieve the data, you can add FETCH to a JOIN in order to load the data with the same query (using JOIN's). 
+
+21. Limitations
+•Poor object inheritance handling and an aversion for instrumentation
+
+•When you load an object in Hibernate (and you've used load so it is a proxy), if that object is in reality (as specified by the database) a sub-class of the one you loaded, Hibernate will not load the real type of the object. You will get it as a proxy on the type you asked for when you loaded it (and not a proxy on the actual type of the object). So A a = (A) session.load("id", A.class);
+Even if in the database that id is of type B (a subclass of A) you will still only get a proxy onto A (and not B). In order to get the real type you have to do another step.
+
+•This same thing occurs when trawling an object tree. Fortunately though, by using instrumentation the trawling issue is solved in that if once an object is instrumented then when trawling the object tree you will get back the real types (except when the object is pulled from a many-to-many collection though).
+
+•Instrumentation does not solve the load anomaly and it still exists, but instrumentation could be used to solve this problem as well.
+
+•We had several processes which generated a large amount of new entity objects (persistent objets) and I then needed to save all these. I could not simply call save on the source object and expect everything to be saved. You might ask why I didn't setup the cascading to do this, yes, I could setup the cascading for one of the use cases but then when I ran another one of the process that created new objects that would need its own cascade structure. So I would like Hibernate to have a facility where I can arbitrarily save a set of objects. The work around for this is that I reflectively trawled the object tree calling save on each object, and I had to do this in a particular order. The facility I'm looking for here is called persistence-by-reachability.
+
+•With Hibernate you can prefetch a collection via a keyword in a query, often that is not sufficient. Say you want to work with a bunch of related obects, you'd want to have them all pre-fetched up front so no slow down and inefficiency later, furthermore, there may be multiple sets of objects for the various tasks you're looking to perform, all with their own "fetch profile". iow, for this task I want these objects pre-fetched, for that task I want those.
+
+
+
+22. Ease of Implementation
+•JPA is a specification for accessing, persisting and managing the data between Java objects and the relational database. As the definition says its API, it is only the specification. There is no implementation for the API. JPA specifies the set of rules and guidelines for developing the interfaces that follows standard. Straight to the point : JPA is just guidelines to implement the Object Relational Mapping (ORM) and there is no underlying code for the implementation.
+
+•Where as, Hibernate is the actual implementation of JPA guidelines. When hibernate implements the JPA specification, this will be certified by the JPA group upon following all the standards mentioned in the specification. For example, JPA guidelines would provide information of mandatory and optional features to be implemented as part of the JPA implementation.
+
+•Hibernate is a JPA provider. When there is new changes to the specification, hibernate would release its updated implementation for the JPA specification. Other popular JPA providers are Eclipse Link (Reference Implementation), OpenJPA, etc. You can find the latest release of JPA providers.
+
+•In summary, JPA is not an implementation, it will not provide any concrete functionality to your application. Its purpose is to provide a set of rules and guidelines that can be followed by JPA implementation vendors to create an ORM implementation in a standardized manner. This allows the underlying JPA implementation to be swapped and for developers to easily transition (think knowledge wise) from one implementation to another. Hibernate is the most popular JPA provider.
+- See more at: http://www.javabeat.net/jpa-vs-hibernate/#sthash.LxBBXcdz.dpuf
+
+
+23. Ease of Database Swapping
+•Session is used to get a physical connection with a database. The Session object is lightweight and designed to be instantiated each time an interaction is needed with the database. Persistent objects are saved and retrieved through a Session object.
+
+•The session objects should not be kept open for a long time because they are not usually thread safe and they should be created and destroyed them as needed. The main function of the Session is to offer create, read and delete operations for instances of mapped entity classes. Instances may exist in one of the following three states at a given point in time:
+
+transient: A new instance of a a persistent class which is not associated with a Session and has no representation in the database and no identifier value is considered transient by Hibernate.
+
+•ersistent: You can make a transient instance persistent by associating it with a Session. A persistent instance has a representation in the database, an identifier value and is associated with a Session.
+
+detached: Once we close the Hibernate Session, the persistent instance will become a detached instance.
+
+•A Session instance is serializable if its persistent classes are serializable. A typical transaction should use the following idiom:
+
+Session session = factory.openSession();
+Transaction tx = null;
+try {
+tx = session.beginTransaction();
+// do some work
+...
+tx.commit();
+}
+catch (Exception e) {
+if (tx!=null) tx.rollback();
+e.printStackTrace(); 
+}finally {
+session.close();
+}
+If the Session throws an exception, the transaction must be rolled back and the session must be discarded.
+
+Tutorial - http://www.tutorialspoint.com/hibernate/hibernate_sessions.htm 
+
+24. Useful Links
+http://www.javaworld.com/article/2072999/data-storage/get-started-with-hibernate.html 
+
+Spring
+
+25. Learning Curve
+• Specific framework is required to be learned. http://www.mkyong.com/tutorials/spring-mvc-tutorials/
+
+•The whole idea behind Spring framework was to keep code simple and without any cross cutting concerns - be it shedding EJB paradigm or Inversion Of Control or Aspect Oriented Programming or even the Convention-over-Configuration philosophy
+
+26. Performance 
+•Spring provides a number of modules to improve performance in various areas, examples of these can be found at: http://en.wikipedia.org/wiki/Spring_Framework
+
+Pros
+* Request based framework like struts
+
+* Well documented
+
+* IOC
+
+* Awesome support for Ajax
+
+* Multiple Response type possible (XML,JSON) support
+
+* Gels very well with spring modules like core/aop/orm etc..
+
+* Coupling/High cohesion,separation of concern,programming against interface
+
+* Databinding
+
+* Supports a large number of standards, btw. JSR330, JMS, JSR250, JPA, JSR303, the whole servlet stack, JSF, JMX, a zillion others.
+
+Cons
+* Knowledge prerequisite
+
+27. Limitations
+•Since other posts here mention the upside, I'll mention the negative aspects of Spring. Even with these negatives, Spring is omnipresent in its niche, reliable, and works as advertised.
+
+•So, on to the negatives:
+
+Enormous: I wouldn't like to put jars with 3000 classes into my little hobby project.
+
+There are some descriptions of it as slower than some other DI frameworks like Guice or Pico. anecdotal, and probably not too important.
+
+Dealing with some parts of spring can be frustrating when they're not well documented parts of the core and documentation you do find diverges across the multiple major versions.
+
+•As a side effect of its size, be prepared to spend joyous hours digging through piles of classes that while logically named, start to merge together into a gigantic pile of nouns when you're tired ("sure, you just connect your TransactionAwareConnectionFactoryProxy to your UserCredentialsConnectionFactoryAdapter to your .. zzzzzzzz "). To be fair, they really are logically named, it's a reasonable response to the size of the framework, but still.
+
+•Possibly as a result of this adaption of new pieces, spring can be slow, at least for me. Not so much with core spring, but there are connectors for just about everything, and they're not all as well documented as they could be, and that's when you start wading through noun soup. Again, it's really all just in response to its size.
+
+28. Ease of Implementation
+•The Core Container consists of the spring-core, spring-beans, spring-context, spring-context-support, and spring-expression (Spring Expression Language) modules.
+
+•The spring-core and spring-beans modules provide the fundamental parts of the framework, including the IoC and Dependency Injection features. The BeanFactory is a sophisticated implementation of the factory pattern. It removes the need for programmatic singletons and allows you to decouple the configuration and specification of dependencies from your actual program logic.
+
+•The Context (spring-context) module builds on the solid base provided by the Core and Beans modules: it is a means to access objects in a framework-style manner that is similar to a JNDI registry. The Context module inherits its features from the Beans module and adds support for internationalization (using, for example, resource bundles), event propagation, resource loading, and the transparent creation of contexts by, for example, a Servlet container. The Context module also supports Java EE features such as EJB, JMX, and basic remoting. The ApplicationContext interface is the focal point of the Context module. spring-context-support provides support for integrating common third-party libraries into a Spring application context for caching (EhCache, Guava, JCache), mailing (JavaMail), scheduling (CommonJ, Quartz) and template engines (FreeMarker, JasperReports, Velocity).
+
+•The spring-expression module provides a powerful Expression Language for querying and manipulating an object graph at runtime. It is an extension of the unified expression language (unified EL) as specified in the JSP 2.1 specification. The language supports setting and getting property values, property assignment, method invocation, accessing the content of arrays, collections and indexers, logical and arithmetic operators, named variables, and retrieval of objects by name from Spring’s IoC container. It also supports list projection and selection as well as common list aggregations.
+
+29. Ease of Database Swapping
+•To avoid tying application objects to hard-coded resource lookups, Spring allows you to define resources like a JDBC DataSource or a Hibernate SessionFactory as beans in an application context. Application objects that need to access resources just receive references to such pre-defined instances via bean references (the DAO definition in the next section illustrates this). The following excerpt from an XML application context definition shows how to set up a JDBC DataSource and a Hibernate SessionFactory on top of it.
+
+30. Useful Links
+http://blog.architexa.com/2012/10/the-decline-of-spring/
+
+http://www.springframework.net/doc-latest/reference/html/introduction.html
+
+http://docs.spring.io/spring/docs/current/spring-framework-reference/html/overview.html 
+
+Avaje
+
+31. Learning Curve
+•Ebean, just like JPA has a Persistence Context but has some architectural differences to allow it to have adifferent approach to the entity bean lifecycle and removing the need to manage EntityManagers.
+
+•Includes partial objects, batching control, support for large queries (row levelpersistence context), background fetching, caching control, transaction isolation.It also has “interesting” support for using raw SQL.
+
+32. Performance 
+•Clobs and Blobs are especially expensive and the ability to include/exclude clob/blobproperties per use case/query can be significant in terms of performance.
+
+•For Ebean “Partial Objects” are seen as an important feature from a performance stand point (fetch less from the database in a simple flexible manor) and from a design perspective (no need to change the design for “wide” objects and follow fixed designs based on “secondary” table properties and fixed annotations for eager or lazy loading) 
+
+33. Limitations
+•Cache invalidation may be more aggressive invalidating more objects out of the cache than strictly necessary. My opinion is that this downside is more than matched by the simplicity of use and light clustering cost. Downside: No Optimistic Concurrency Checking for Beans without a Version property. 
+
+34. Ease of Implementation
+• Specific framework is required to be learned. http://www.mkyong.com/tutorials/spring-mvc-tutorials/
+
+•The whole idea behind Spring framework was to keep code simple and without any cross cutting concerns - be it shedding EJB paradigm or Inversion Of Control or Aspect Oriented Programming or even the Convention-over-Configuration philosophy 
+
+35. Ease of Database Swapping
+•For large databases this can be a very significant performance optimization. If you need this Ebean has made it very easy without requiring a change to your design (either ORM or Database design) 
+
+36. Useful Links
+http://www.avaje.org/doc/ebean-userguide.pdf 
+
+MyBatis
+
+37. Learning Curve
+•It has a low learning curve. If developers are familiar with Java and SQL, they will find it fairly easy to get started with MyBatis. MyBatis makes using SQL easy by abstracting low-level JDBC code, automating the process of populating the SQL result set into Java objects, and persisting data into tables by extracting the data from Java objects. 
+
+38. Performance 
+•It Eliminates a lot of JDBC boilerplate code. MyBatis supports database connection pooling that eliminates the cost of creating a database connection on demand for every request. MyBatis has an in-built cache mechanism which caches the results of SQL queries at the SqlSession level. That is, if you invoke the same mapped select query, then MyBatis returns the cached result instead of querying the database again. MyBatis doesn't use proxying heavily and hence yields better performance compared to other ORM frameworks that use proxies extensively. 
+
+39. Limitations
+•If your application is driven by an object model and wants to generate SQL dynamically, If you want to have a transitive persistence mechanism (saving the parent object should persist associated child objects as well) for your application, Hibernate will be better suited for it. 
+
+
+
+
+
+40. Ease of Implementation
+•Uses a Jar for api and works well with JUnit. MyBatis can be implemented for nearly any language or platform like Java, Ruby, and C# for Microsoft .NET. 
+
+41. Ease of Database Swapping
+•If a databaseIdProvider was configured a "_databaseId" variable is available for dynamic code, so you can build different statements depending on database vendor.
+
+•One of the most powerful features of MyBatis has always been its Dynamic SQL capabilities 
+
+42. Useful Links
+http://site.ebrary.com.ezproxy.rowan.edu/lib/rowan/reader.action?docID=10723059 
