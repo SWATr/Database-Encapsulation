@@ -5,16 +5,15 @@ Nate Zimmerman and Jon Colabella
 
 I. Project Summary:
 
-	Third party products create a dependency on your developed and deployed programs. If the provider decides to change their interface or implementation, it may affect how your program
-	behaves and drive other unwanted impacts to your product. These risks can be mitigated by following good object oriented practices such as encapsulation. The task is to research and 
-	explore methods of database storage and retrieval that remove the dependence from FOSS, COTS, and GOTS. Examples of this could include, object relational mapping (ORM) frameworks that
-	auto-generate class objects based on schema definitions and data models. The class objects are used to store, retrieve, and convert data to and from the 	database into a specific programming
-	language. Another approach could be to create database 	functions (stored procedures) that implement the SQL calls.
-	
-	After researching different approaches and determining  their impacts to existing legacy code, a 	list of pros and cons will be compiled to best choose three methods to focus on. Once these
-	three methods have been determined, using the Agile software development process, three prototypes will be created to showcase the researched pros and cons. The additional methods 	
-	will not be prototyped, instead they will be surveyed as to why they are not as effective. Topics to evaluate will include ease of implementation, continuous maintenance, performance 
-	concerns, existing database support, ability to swap database engines, etc.
+Third party products create a dependency on your developed and deployed programs. If the provider decides to change their interface or implementation, it may affect how your program
+behaves and drive other unwanted impacts to your product. These risks can be mitigated by following good object oriented practices such as encapsulation. The task is to research and 
+explore methods of database storage and retrieval that remove the dependence from FOSS, COTS, and GOTS. Examples of this could include, object relational mapping (ORM) frameworks that
+auto-generate class objects based on schema definitions and data models. The class objects are used to store, retrieve, and convert data to and from the 	database into a specific programming
+language. Another approach could be to create database 	functions (stored procedures) that implement the SQL calls.
+
+After researching different approaches and determining  their impacts to existing legacy code, a list of pros and cons will be compiled to best choose three methods to focus on. Once these
+three methods have been determined, using the Agile software development process, three prototypes will be created to showcase the researched pros and cons. The additional methods 	
+will not be prototyped, instead they will be surveyed as to why they are not as effective. Topics to evaluate will include ease of implementation, continuous maintenance, performance 	concerns, existing database support, ability to swap database engines, etc.
 
 
 II. Project goals
