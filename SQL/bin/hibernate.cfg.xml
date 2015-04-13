@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory name="HibSession">
+        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">"Password here"</property>
+        <property name="hibernate.connection.url">"URL here"</property>
+        <property name="hibernate.connection.username">"Username here"</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.search.autoregister_listeners">false</property>
+        <property name="hibernate.validator.apply_to_ddl">false</property>
+        <mapping resource="db/DeptManager.hbm.xml" />
+        <mapping resource="db/DeptEmp.hbm.xml" />
+        <mapping resource="db/Titles.hbm.xml" />
+        <mapping resource="db/Employees.hbm.xml" />
+        <mapping resource="db/Departments.hbm.xml" />
+        <mapping resource="db/Salaries.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>
